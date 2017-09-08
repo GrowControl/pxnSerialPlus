@@ -113,6 +113,8 @@
 									<directory>${project.basedir}/../</directory>
 									<fileNames>
 										<fileName>NativeSerial.c</fileName>
+										<fileName>NativeD2xx.c</fileName>
+										<fileName>NativeCh34x.c</fileName>
 									</fileNames>
 								</source>
 							</sources>

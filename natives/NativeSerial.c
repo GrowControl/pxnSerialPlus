@@ -1,4 +1,4 @@
-/* PoiXson SerialPlus
+/* PoiXson SerialPlus 1.x
  * copyright 2017
  * license GPL-3
  * lorenzo at poixson.com
@@ -11,7 +11,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-// # include <linux/serial.h>
 #include <termios.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -21,7 +20,7 @@
 
 #ifdef __SunOS
 #include <sys/filio.h> // for FIONREAD in Solaris
-#include <string.h>    // for select() function
+// # include <string.h>    // for select() function
 #endif
 
 // # ifdef __APPLE__
@@ -41,16 +40,7 @@
 
 
 
-// implimated in java for linux
-//JNIEXPORT jobjectArray JNICALL
-//Java_com_poixson_serialplus_natives_NativeSerial_ListPorts
-//(JNIEnv *env, jobject obj) {
-//return NULL;
-//}
-
-
-
-// natOpenPort()
+// natOpenPort(port-name)
 JNIEXPORT jlong JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natOpenPort
 (JNIEnv *env, jobject obj, jstring portName) {
@@ -85,16 +75,19 @@ Java_com_poixson_serialplus_natives_NativeSerial_natOpenPort
 	ioctl(handle, TIOCEXCL);
 	// set blocking
 	fcntl(handle, F_SETFL, 0);
+//TODO: should this be used?
+//	// set non-blocking
+//	fcntl(handle, F_SETFL, FNDELAY);
 	(*env)->ReleaseStringUTFChars(env, portName, port);
 	return handle;
 }
 
 
 
-// natClosePort()
+// natClosePort(handle)
 JNIEXPORT jboolean JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natClosePort
-(jlong handle) {
+(JNIEnv *env, jobject obj, jlong handle) {
 //	fprintf(stderr, "Closing native serial port: %s\n", port);
 	if (handle <= 0) {
 		return JNI_FALSE;
@@ -109,7 +102,7 @@ Java_com_poixson_serialplus_natives_NativeSerial_natClosePort
 
 
 
-// natSerParams()
+// natSetParams(handle, baud, byte-size, stop-bits, parity, flags)
 JNIEXPORT jlong JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natSetParams
 (JNIEnv *env, jobject obj,
@@ -219,7 +212,6 @@ jboolean setRTS, jboolean setDTR, jint flags) {
 		handle = NativeSerial_ERR_INCORRECT_SERIAL_PORT; // -5
 		return handle;
 	}
-	// flush settings
 	tcflush(handle, TCIOFLUSH);
 
 	// line status
@@ -248,7 +240,7 @@ jboolean setRTS, jboolean setDTR, jint flags) {
 
 
 
-// natGetInputBytesCount()
+// natGetInputBytesCount(handle)
 JNIEXPORT jlong JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natGetInputBytesCount
 (JNIEnv *env, jobject obj, jlong handle) {
@@ -259,7 +251,7 @@ Java_com_poixson_serialplus_natives_NativeSerial_natGetInputBytesCount
 	ioctl(handle, FIONREAD, &result);
 	return result;
 }
-// natGetOutputBytesCount()
+// natGetOutputBytesCount(handle)
 JNIEXPORT jlong JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natGetOutputBytesCount
 (JNIEnv *env, jobject obj, jlong handle) {
@@ -273,7 +265,7 @@ Java_com_poixson_serialplus_natives_NativeSerial_natGetOutputBytesCount
 
 
 
-// natReadBytes()
+// natReadBytes(handle, bytes, length)
 JNIEXPORT jbyteArray JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natReadBytes
 (JNIEnv *env, jobject obj, jlong handle, jint size) {
@@ -317,7 +309,7 @@ fprintf(stderr, "READING FROM: %d\n", handle);
 
 
 
-// natWriteBytes()
+// natWriteBytes(handle, bytes)
 JNIEXPORT jlong JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natWriteBytes
 (JNIEnv *env, jobject obj, jlong handle, jbyteArray bytes) {

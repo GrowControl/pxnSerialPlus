@@ -105,18 +105,17 @@ Java_com_poixson_serialplus_natives_NativeSerial_natClosePort
 // natSetParams(handle, baud, byte-size, stop-bits, parity, flags)
 JNIEXPORT jlong JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natSetParams
-(JNIEnv *env, jobject obj,
-jlong handle, jint baud,
-jint byteSize, jint stopBits, jint parity,
-jboolean setRTS, jboolean setDTR, jint flags) {
+(JNIEnv *env, jobject obj, jlong handle, jint baud,
+jint byteSize, jint stopBits, jint parity, jint flags) {
 	if (handle <= 0) {
 		return handle;
 	}
 	speed_t baudValue = GetBaudByNumber(baud);
 	int byteSizeValue = GetByteSizeByNumber(byteSize);
-
 	// get current options
 	struct termios tty;
+//TODO: is this needed?
+//memset (&tty, 0, sizeof tty);
 	if (tcgetattr(handle, &tty) != 0) {
 		fprintf(stderr, "Failed to get port attributes\n");
 		close(handle);
@@ -137,8 +136,6 @@ jboolean setRTS, jboolean setDTR, jint flags) {
 	if ( (flags & PARAMS_FLAG_PARMRK) == PARAMS_FLAG_PARMRK ) {
 		tty.c_iflag |= PARMRK;
 	}
-	tty.c_cc[VMIN]  = 0;  // Minimum number of characters to read
-	tty.c_cc[VTIME] = 10; // Time to wait for data (tenths of seconds)
 
 	// set baud rate
 	if (baudValue != -1) {
@@ -213,10 +210,100 @@ jboolean setRTS, jboolean setDTR, jint flags) {
 		return handle;
 	}
 	tcflush(handle, TCIOFLUSH);
+	return handle;
+}
 
-	// line status
+
+
+// natSetBlocking(handle, blocking) - blocking/non-blocking
+JNIEXPORT jlong JNICALL
+Java_com_poixson_serialplus_natives_NativeSerial_natSetBlocking
+(JNIEnv *env, jobject obj, jlong handle, jboolean blocking) {
+	if (handle <= 0) {
+		return handle;
+	}
+	// get current options
+	struct termios tty;
+	if (tcgetattr(handle, &tty) != 0) {
+		fprintf(stderr, "Failed to get port attributes\n");
+		close(handle);
+		handle = NativeSerial_ERR_INCORRECT_SERIAL_PORT; // -5
+		return handle;
+	}
+
+	// set blocking/timeout
+	tty.c_cc[VMIN]  = (blocking == JNI_FALSE ? 0 : 1); // Minimum number of characters to read
+	tty.c_cc[VTIME] = (blocking == JNI_FALSE ? 0 : 1); // Time to wait for data (tenths of seconds)
+
+	// set the settings
+	if (tcsetattr(handle, TCSAFLUSH, &tty) != 0) {
+		fprintf(stderr, "Failed to set port attributes\n");
+		close(handle);
+		handle = NativeSerial_ERR_INCORRECT_SERIAL_PORT; // -5
+		return handle;
+	}
+	tcflush(handle, TCIOFLUSH);
+	return handle;
+}
+
+
+
+// natSetVMinVTime(handle, vMin, vTime)
+JNIEXPORT jlong JNICALL
+Java_com_poixson_serialplus_natives_NativeSerial_natSetVMinVTime
+(JNIEnv *env, jobject obj, jlong handle, jint vMin, jint vTime) {
+	if (handle <= 0) {
+		return handle;
+	}
+	// get current options
+	struct termios tty;
+	if (tcgetattr(handle, &tty) != 0) {
+		fprintf(stderr, "Failed to get port attributes\n");
+		close(handle);
+		handle = NativeSerial_ERR_INCORRECT_SERIAL_PORT; // -5
+		return handle;
+	}
+
+	// Minimum number of characters to read
+	if (vMin  > 0) {
+		tty.c_cc[VMIN] = vMin;
+	}
+	// Time to wait for data (tenths of seconds)
+	if (vTime > 0) {
+		tty.c_cc[VTIME] = vTime;
+	}
+
+	// set the settings
+	if (tcsetattr(handle, TCSAFLUSH, &tty) != 0) {
+		fprintf(stderr, "Failed to set port attributes\n");
+		close(handle);
+		handle = NativeSerial_ERR_INCORRECT_SERIAL_PORT; // -5
+		return handle;
+	}
+	tcflush(handle, TCIOFLUSH);
+	return handle;
+}
+
+
+
+// natSetLineStatus(handle, rts, dtr)
+JNIEXPORT jlong JNICALL
+Java_com_poixson_serialplus_natives_NativeSerial_natSetLineStatus
+(JNIEnv *env, jobject obj,
+jlong handle, jboolean setRTS, jboolean setDTR) {
+	if (handle <= 0) {
+		return handle;
+	}
+	// get current options
+	struct termios tty;
+	if (tcgetattr(handle, &tty) != 0) {
+		fprintf(stderr, "Failed to get port attributes\n");
+		close(handle);
+		handle = NativeSerial_ERR_INCORRECT_SERIAL_PORT; // -5
+		return handle;
+	}
+
 	int lineStatus;
-	jboolean result = JNI_FALSE;
 	if (ioctl(handle, TIOCMGET, &lineStatus) >= 0) {
 		// RTS (request to send)
 		if (setRTS == JNI_TRUE) {
@@ -231,17 +318,25 @@ jboolean setRTS, jboolean setDTR, jint flags) {
 			lineStatus &= ~TIOCM_DTR;
 		}
 		if (ioctl(handle, TIOCMSET, &lineStatus) >= 0) {
-			result = JNI_TRUE;
+			return JNI_TRUE;
 		}
 	}
 
-	return result;
+	// set the settings
+	if (tcsetattr(handle, TCSAFLUSH, &tty) != 0) {
+		fprintf(stderr, "Failed to set port attributes\n");
+		close(handle);
+		handle = NativeSerial_ERR_INCORRECT_SERIAL_PORT; // -5
+		return handle;
+	}
+	tcflush(handle, TCIOFLUSH);
+	return JNI_FALSE;
 }
 
 
 
 // natGetInputBytesCount(handle)
-JNIEXPORT jlong JNICALL
+JNIEXPORT jint JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natGetInputBytesCount
 (JNIEnv *env, jobject obj, jlong handle) {
 	if (handle <= 0) {
@@ -252,7 +347,7 @@ Java_com_poixson_serialplus_natives_NativeSerial_natGetInputBytesCount
 	return result;
 }
 // natGetOutputBytesCount(handle)
-JNIEXPORT jlong JNICALL
+JNIEXPORT jint JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natGetOutputBytesCount
 (JNIEnv *env, jobject obj, jlong handle) {
 	if (handle <= 0) {
@@ -266,45 +361,27 @@ Java_com_poixson_serialplus_natives_NativeSerial_natGetOutputBytesCount
 
 
 // natReadBytes(handle, bytes, length)
-JNIEXPORT jbyteArray JNICALL
+JNIEXPORT jint JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natReadBytes
-(JNIEnv *env, jobject obj, jlong handle, jint size) {
-	fd_set read_fd_set;
-	jbyte *buffer;
-//	jbyte *buffer = (*env)->NewByte(env);
-//	jbyte *buffer = new jbyte[size];
-	int remaining = size;
-fprintf(stderr, "READING FROM: %d\n", handle);
-	while (remaining > 0) {
-		FD_ZERO(&read_fd_set);
-		FD_SET(handle, &read_fd_set);
-		select(
-			handle + 1,
-			&read_fd_set,
-			NULL,
-			NULL,
-			NULL
-		);
-		int result = read(
-			handle,
-			buffer + (size - remaining),
-			remaining
-		);
-		if (result > 0) {
-			remaining -= result;
-		}
-	}
-	FD_CLR(handle, &read_fd_set);
-	jbyteArray array = (*env)->NewByteArray(env, size);
-	(*env)->SetByteArrayRegion(
-		env,
-		array,
-		0,
-		size,
-		buffer
+(JNIEnv *env, jobject obj,
+jlong handle, jbyteArray bytes, jint length) {
+	jbyte *buf = (jbyte*) malloc(length);
+	jint result = (jint) read(
+		handle,
+		buf,
+		length
 	);
-	free(buffer);
-	return array;
+	if (result > 0) {
+		(*env)->SetByteArrayRegion(
+			env,
+			bytes,
+			0,
+			result,
+			buf
+		);
+	}
+	free(buf);
+	return result;
 }
 
 

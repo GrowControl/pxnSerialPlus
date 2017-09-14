@@ -88,7 +88,7 @@ Java_com_poixson_serialplus_natives_NativeSerial_natOpenPort
 JNIEXPORT jboolean JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natClosePort
 (JNIEnv *env, jobject obj, jlong handle) {
-//	fprintf(stderr, "Closing native serial port: %s\n", port);
+	fprintf(stderr, "Closing native serial port: %s\n", port);
 	if (handle <= 0) {
 		return JNI_FALSE;
 	}
@@ -392,6 +392,7 @@ Java_com_poixson_serialplus_natives_NativeSerial_natWriteBytes
 (JNIEnv *env, jobject obj, jlong handle, jbyteArray bytes) {
 	jbyte* buffer = (*env)->GetByteArrayElements(env, bytes, JNI_FALSE);
 	jint size = (*env)->GetArrayLength(env, bytes);
+//TODO: remove this
 fprintf(stderr, "WRITING: %s\n", buffer);
 	jint result =
 		write(

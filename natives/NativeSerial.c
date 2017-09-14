@@ -116,34 +116,34 @@ jboolean setRTS, jboolean setDTR, jint flags) {
 	int byteSizeValue = GetByteSizeByNumber(byteSize);
 
 	// get current options
-	struct termios settings;
-	if (tcgetattr(handle, &settings) != 0) {
+	struct termios tty;
+	if (tcgetattr(handle, &tty) != 0) {
 		fprintf(stderr, "Failed to get port attributes\n");
 		close(handle);
 		handle = NativeSerial_ERR_INCORRECT_SERIAL_PORT; // -5
 		return handle;
 	}
-	settings.c_cflag |= (CLOCAL | CREAD);
-	settings.c_cflag &= ~CRTSCTS;
-	settings.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL | ECHOCTL | ECHOPRT | ECHOKE | ISIG | IEXTEN);
-	settings.c_iflag &= ~(IXON | IXOFF | IXANY | INPCK | IGNPAR | PARMRK | ISTRIP | IGNBRK | BRKINT | INLCR | IGNCR| ICRNL);
+	tty.c_cflag |= (CLOCAL | CREAD);
+	tty.c_cflag &= ~CRTSCTS;
+	tty.c_lflag &= ~(ICANON | ECHO | ECHOE | ECHOK | ECHONL | ECHOCTL | ECHOPRT | ECHOKE | ISIG | IEXTEN);
+	tty.c_iflag &= ~(IXON | IXOFF | IXANY | INPCK | IGNPAR | PARMRK | ISTRIP | IGNBRK | BRKINT | INLCR | IGNCR| ICRNL);
 #ifdef IUCLC
-	settings.c_iflag &= ~IUCLC;
+	tty.c_iflag &= ~IUCLC;
 #endif
-	settings.c_oflag &= ~OPOST;
+	tty.c_oflag &= ~OPOST;
 	if ( (flags & PARAMS_FLAG_IGNPAR) == PARAMS_FLAG_IGNPAR ) {
-		settings.c_iflag |= IGNPAR;
+		tty.c_iflag |= IGNPAR;
 	}
 	if ( (flags & PARAMS_FLAG_PARMRK) == PARAMS_FLAG_PARMRK ) {
-		settings.c_iflag |= PARMRK;
+		tty.c_iflag |= PARMRK;
 	}
-	settings.c_cc[VMIN]  = 0;  // Minimum number of characters to read
-	settings.c_cc[VTIME] = 10; // Time to wait for data (tenths of seconds)
+	tty.c_cc[VMIN]  = 0;  // Minimum number of characters to read
+	tty.c_cc[VTIME] = 10; // Time to wait for data (tenths of seconds)
 
 	// set baud rate
 	if (baudValue != -1) {
-		if (cfsetispeed(&settings, baudValue) < 0 ||
-		cfsetospeed(&settings, baudValue) < 0) {
+		if (cfsetispeed(&tty, baudValue) < 0 ||
+		cfsetospeed(&tty, baudValue) < 0) {
 			fprintf(stderr, "Failed to set baud rate\n");
 			close(handle);
 			handle = NativeSerial_ERR_INCORRECT_SERIAL_PORT; // -5
@@ -153,60 +153,60 @@ jboolean setRTS, jboolean setDTR, jint flags) {
 
 	// set data bits
 	if (byteSizeValue != -1) {
-		settings.c_cflag &= ~CSIZE;
-		settings.c_cflag |= byteSizeValue;
+		tty.c_cflag &= ~CSIZE;
+		tty.c_cflag |= byteSizeValue;
 	}
 
 	// set stop bits
 	if (stopBits == 0) { // 1 bit
-		settings.c_cflag &= ~CSTOPB;
+		tty.c_cflag &= ~CSTOPB;
 	} else
 	// 1 = 1.5 bits ; 2 = 2 bits
 	if ( (stopBits == 1) || (stopBits == 2) ) {
-		settings.c_cflag |= CSTOPB;
+		tty.c_cflag |= CSTOPB;
 	}
 
 	// clear parity
 #ifdef PAREXT
-	settings.c_cflag &= ~(PARENB | PARODD | PAREXT);
+	tty.c_cflag &= ~(PARENB | PARODD | PAREXT);
 #elif defined CMSPAR
-	settings.c_cflag &= ~(PARENB | PARODD | CMSPAR);
+	tty.c_cflag &= ~(PARENB | PARODD | CMSPAR);
 #else
-	settings.c_cflag &= ~(PARENB | PARODD);
+	tty.c_cflag &= ~(PARENB | PARODD);
 #endif
 	// odd parity
 	if (parity == 1) {
-		settings.c_cflag |= (PARENB | PARODD);
-		settings.c_iflag |= INPCK;
+		tty.c_cflag |= (PARENB | PARODD);
+		tty.c_iflag |= INPCK;
 	} else
 	// even parity
 	if (parity == 2) {
-		settings.c_cflag |= PARENB;
-		settings.c_iflag |= INPCK;
+		tty.c_cflag |= PARENB;
+		tty.c_iflag |= INPCK;
 	} else
 	// mark parity
 	if (parity == 3) {
 #ifdef PAREXT
-		settings.c_cflag |= (PARENB | PARODD | PAREXT);
-		settings.c_iflag |= INPCK;
+		tty.c_cflag |= (PARENB | PARODD | PAREXT);
+		tty.c_iflag |= INPCK;
 #elif defined CMSPAR
-		settings.c_cflag |= (PARENB | PARODD | CMSPAR);
-		settings.c_iflag |= INPCK;
+		tty.c_cflag |= (PARENB | PARODD | CMSPAR);
+		tty.c_iflag |= INPCK;
 #endif
 	} else
 	// space parity
 	if (parity == 4) {
 #ifdef PAREXT
-		settings.c_cflag |= (PARENB | PAREXT);
-		settings.c_iflag |= INPCK;
+		tty.c_cflag |= (PARENB | PAREXT);
+		tty.c_iflag |= INPCK;
 #elif defined CMSPAR
-		settings.c_cflag |= (PARENB | CMSPAR);
-		settings.c_iflag |= INPCK;
+		tty.c_cflag |= (PARENB | CMSPAR);
+		tty.c_iflag |= INPCK;
 #endif
 	}
 
 	// set the settings
-	if (tcsetattr(handle, TCSAFLUSH, &settings) != 0) {
+	if (tcsetattr(handle, TCSAFLUSH, &tty) != 0) {
 		fprintf(stderr, "Failed to set port attributes\n");
 		close(handle);
 		handle = NativeSerial_ERR_INCORRECT_SERIAL_PORT; // -5

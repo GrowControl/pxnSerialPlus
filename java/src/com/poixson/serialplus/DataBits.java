@@ -13,6 +13,10 @@ public enum DataBits {
 
 
 
+	public static final DataBits DEFAULT_BYTE_SIZE = DATA_BITS_8;
+
+
+
 	private static final List<DataBits> bits = new ArrayList<DataBits>();
 	static {
 		bits.add(DATA_BITS_5);

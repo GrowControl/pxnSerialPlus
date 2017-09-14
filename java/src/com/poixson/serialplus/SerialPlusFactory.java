@@ -2,6 +2,10 @@ package com.poixson.serialplus;
 
 import java.security.InvalidParameterException;
 
+import com.poixson.serialplus.enums.Baud;
+import com.poixson.serialplus.enums.DataBits;
+import com.poixson.serialplus.enums.Parity;
+import com.poixson.serialplus.enums.StopBits;
 import com.poixson.utils.Utils;
 
 

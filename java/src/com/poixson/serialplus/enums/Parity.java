@@ -1,4 +1,4 @@
-package com.poixson.serialplus;
+package com.poixson.serialplus.enums;
 
 import com.poixson.utils.Utils;
 

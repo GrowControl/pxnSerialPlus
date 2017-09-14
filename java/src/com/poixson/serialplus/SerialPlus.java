@@ -3,6 +3,10 @@ package com.poixson.serialplus;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import com.poixson.serialplus.enums.Baud;
+import com.poixson.serialplus.enums.DataBits;
+import com.poixson.serialplus.enums.Parity;
+import com.poixson.serialplus.enums.StopBits;
 import com.poixson.serialplus.natives.NativeSerial;
 import com.poixson.utils.xCloseable;
 import com.poixson.utils.xTime;

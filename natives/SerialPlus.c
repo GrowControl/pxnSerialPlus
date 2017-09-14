@@ -10,6 +10,7 @@
 #include <termios.h>
 
 
+
 speed_t GetBaudByNumber(jint baud) {
 	if (baud <= 0) {
 		return -1;
@@ -136,6 +137,7 @@ speed_t GetBaudByNumber(jint baud) {
 #endif
 	return -1;
 }
+
 
 
 int GetByteSizeByNumber(jint byteSize) {

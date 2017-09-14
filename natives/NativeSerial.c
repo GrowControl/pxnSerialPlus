@@ -88,7 +88,6 @@ Java_com_poixson_serialplus_natives_NativeSerial_natOpenPort
 JNIEXPORT jboolean JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natClosePort
 (JNIEnv *env, jobject obj, jlong handle) {
-	fprintf(stderr, "Closing native serial port: %s\n", port);
 	if (handle <= 0) {
 		return JNI_FALSE;
 	}

@@ -1,10 +1,10 @@
-package com.poixson.serialplus;
+package com.poixson.serialplus.examples;
 
 import com.poixson.utils.NativeUtils;
 import com.poixson.utils.xVars;
 
 
-public class example {
+public class Main {
 
 
 

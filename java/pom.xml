@@ -158,7 +158,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.poixson.serialplus.example</mainClass>
+							<mainClass>com.poixson.serialplus.examples.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

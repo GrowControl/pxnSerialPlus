@@ -13,19 +13,14 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+		<ftd2xxLinuxVersion>1.4.6</ftd2xxLinuxVersion>
+
 		<native-maven-plugin-version>1.0-alpha-8</native-maven-plugin-version>
 
 	</properties>
-<!--
-	<parent>
-		<groupId>com.poixson</groupId>
-		<artifactId>serialplus-parent</artifactId>
-		<version>${project.version}</version>
-	</parent>
--->
 	<profiles>
 		<profile>
-			<id>linux64</id>
+			<id>with-linux64</id>
 			<activation>
 				<os>
 					<family>unix</family>
@@ -41,72 +36,17 @@
 						<version>${native-maven-plugin-version}</version>
 						<extensions>true</extensions>
 						<configuration>
-<!--
-							<javahClassNames>
-								<javahClassName>com.poixson.serialplus.Natives</javahClassName>
-							</javahClassNames>
--->
 							<javahOS>linux</javahOS>
 							<compilerStartOptions>
-								<compilerStartOption>-DHAVE_TERMIOS_H</compilerStartOption>
-								<compilerStartOption>-DHAVE_STDINT_H</compilerStartOption>
-								<compilerStartOption>-DHAVE_SYS_FCNTL_H</compilerStartOption>
-								<compilerStartOption>-DHAVE_SYS_SIGNAL_H</compilerStartOption>
 								<compilerStartOption>-shared</compilerStartOption>
-								<compilerStartOption>-fPIC</compilerStartOption>
-							</compilerStartOptions>
-							<linkerStartOptions>
-								<linkerStartOption>-shared</linkerStartOption>
-							</linkerStartOptions>
-							<sources>
-								<source>
-									<directory>${project.basedir}/../</directory>
-									<fileNames>
-										<fileName>NativeSerial.c</fileName>
-										<fileName>NativeD2xx.c</fileName>
-										<fileName>NativeCh34x.c</fileName>
-									</fileNames>
-								</source>
-							</sources>
-						</configuration>
-					</plugin> 
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>linux32</id>
-			<activation>
-				<os>
-					<family>unix</family>
-					<arch>i386</arch>
-				</os>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>native-maven-plugin</artifactId>
-						<version>${native-maven-plugin-version}</version>
-						<extensions>true</extensions>
-						<configuration>
-<!--
-							<javahClassNames>
-								<javahClassName>com.poixson.serialplus.Natives</javahClassName>
-							</javahClassNames>
--->
-							<javahOS>linux</javahOS>
-							<compilerStartOptions>
-								<compilerStartOption>-DHAVE_TERMIOS_H</compilerStartOption>
-								<compilerStartOption>-DHAVE_STDINT_H</compilerStartOption>
-								<compilerStartOption>-DHAVE_SYS_FCNTL_H</compilerStartOption>
-								<compilerStartOption>-DHAVE_SYS_SIGNAL_H</compilerStartOption>
 								<compilerStartOption>-m64</compilerStartOption>
-								<compilerStartOption>-shared</compilerStartOption>
 								<compilerStartOption>-fPIC</compilerStartOption>
 							</compilerStartOptions>
 							<linkerStartOptions>
 								<linkerStartOption>-shared</linkerStartOption>
 								<linkerStartOption>-m64</linkerStartOption>
+								<linkerStartOption>-L ${project.basedir}/../../libraries/linux64-${ftd2xxLinuxVersion}/release/build/</linkerStartOption>
+								<linkerStartOption>-l ftd2xx</linkerStartOption>
 							</linkerStartOptions>
 							<sources>
 								<source>

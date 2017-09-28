@@ -33,7 +33,6 @@
 
 	</properties>
 	<build>
-		<defaultGoal>install</defaultGoal>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -41,12 +40,6 @@
 					<artifactId>native-maven-plugin</artifactId>
 					<version>${native-maven-plugin-version}</version>
 					<extensions>true</extensions>
-					<configuration>
-						<compilerStartOptions>
-							<compilerStartOption>${compiler.debug.options}</compilerStartOption>
-							<compilerStartOption>/W4 -O</compilerStartOption>
-						</compilerStartOptions>
-					</configuration>
 				</plugin>            
 			</plugins>   
 		</pluginManagement>
@@ -70,8 +63,9 @@
 -->
 	</modules>
 	<profiles>
+
 		<profile>
-			<id>with-linux-x86_64</id>
+			<id>with-linux64</id>
 			<activation>
 				<os>
 					<family>unix</family>
@@ -85,7 +79,7 @@
 		</profile>
 <!--
 		<profile>
-			<id>with-linux-x86</id>
+			<id>with-linux32</id>
 			<activation>
 				<os>
 					<family>unix</family>
@@ -97,20 +91,34 @@
 				<module>linux32</module>
 			</modules>
 		</profile>
+
 		<profile>
-			<id>with-windows-x86</id>
-			<modules>
-				<module>win32</module>
-			</modules>
-		</profile>
-		<profile>
-			<id>win64</id>
+			<id>with-win64</id>
+			<activation>
+				<os>
+					<family>Windows</family>
+					<arch>amd64</arch>
+				</os>
+			</activation>
 			<modules>
 				<module>win64</module>
 			</modules>
 		</profile>
 		<profile>
-			<id>with-osx-x86_64</id>
+			<id>with-win32</id>
+			<activation>
+				<os>
+					<family>Windows</family>
+					<arch>i386</arch>
+				</os>
+			</activation>
+			<modules>
+				<module>win32</module>
+			</modules>
+		</profile>
+
+		<profile>
+			<id>with-osx64</id>
 			<activation>
 				<os>
 					<family>mac</family>

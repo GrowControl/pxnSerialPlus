@@ -67,7 +67,7 @@
 					<include>*.so</include>
 				</includes>
 			</resource>
-
+<!--
 			<resource>
 				<directory>../libraries/linux64-${ftd2xxLinuxVersion}/release/build/</directory>
 				<targetPath>lib/linux64/</targetPath>
@@ -76,7 +76,6 @@
 					<include>*.so</include>
 				</includes>
 			</resource>
-<!--
 			<resource>
 				<directory>../libraries/linux32-${ftd2xxLinuxVersion}/release/build/</directory>
 				<targetPath>lib/linux32/</targetPath>

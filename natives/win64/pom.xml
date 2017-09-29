@@ -44,7 +44,7 @@
 							<linkerStartOptions>
 								<linkerStartOption>-shared</linkerStartOption>
 								<linkerStartOption>-m64</linkerStartOption>
-								<linkerStartOption>-L ${project.basedir}/../../libraries/win64-${ftd2xxWinVersion}/amd64/</linkerStartOption>
+								<linkerStartOption>-L ${project.basedir}/../../java/resources/lib/linux64/</linkerStartOption>
 								<linkerStartOption>-l ftd2xx</linkerStartOption>
 							</linkerStartOptions>
 							<sources>

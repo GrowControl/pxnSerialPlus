@@ -45,7 +45,7 @@
 							<linkerStartOptions>
 								<linkerStartOption>-shared</linkerStartOption>
 								<linkerStartOption>-m32</linkerStartOption>
-								<linkerStartOption>-L ${project.basedir}/../../libraries/linux32-${ftd2xxLinuxVersion}/release/build/</linkerStartOption>
+								<linkerStartOption>-L ${project.basedir}/../../java/resources/lib/linux64/</linkerStartOption>
 								<linkerStartOption>-l ftd2xx</linkerStartOption>
 							</linkerStartOptions>
 							<sources>

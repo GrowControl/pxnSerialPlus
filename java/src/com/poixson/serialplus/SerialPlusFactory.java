@@ -191,6 +191,7 @@ public class SerialPlusFactory {
 
 
 
+/*
 	// blocking/non-blocking
 	public SerialPlusFactory setBlocking(final boolean blocking) {
 		this.blocking = blocking;
@@ -202,6 +203,7 @@ public class SerialPlusFactory {
 	public SerialPlusFactory setNonBlocking() {
 		return this.setBlocking(false);
 	}
+*/
 
 
 

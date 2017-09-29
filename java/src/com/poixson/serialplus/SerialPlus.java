@@ -2,95 +2,77 @@ package com.poixson.serialplus;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.SoftReference;
+import java.util.concurrent.atomic.AtomicReference;
 
-import com.poixson.serialplus.enums.Baud;
-import com.poixson.serialplus.enums.DataBits;
-import com.poixson.serialplus.enums.Parity;
-import com.poixson.serialplus.enums.StopBits;
-import com.poixson.serialplus.natives.NativeSerial;
+import com.poixson.serialplus.drivers.DriverSerial;
+import com.poixson.serialplus.exceptions.SerialReadTimeoutException;
+import com.poixson.utils.ErrorMode;
 import com.poixson.utils.xCloseable;
 import com.poixson.utils.xTime;
+import com.poixson.utils.exceptions.IORuntimeException;
+import com.poixson.utils.xLogger.xLog;
 
 
 public class SerialPlus implements xCloseable {
 
-	public static final long DEFAULT_READ_TIMEOUT  = 1000L;
-	public static final long DEFAULT_READ_INTERVAL = 100L;
-
-	protected final String  portName;
-	protected final int     baud;
-	protected final int     byteSize;
-	protected final int     stopBits;
-	protected final int     parity;
-	protected final boolean setRTS;
-	protected final boolean setDTR;
-	protected final int     flags;
-	protected final boolean blocking;
+	public static final ErrorMode DEFAULT_ERROR_MODE = ErrorMode.LOG;
+	protected volatile ErrorMode errorMode = null;
 
 	protected final xTime timeout  = xTime.get();
 	protected final xTime interval = xTime.get();
 
-	protected volatile NativeSerial nat = null;
+	protected final DeviceConfig cfg;
+	protected final AtomicReference<Driver> driver = new AtomicReference<Driver>(null);
 
 
 
-	public SerialPlus(final String portName, final int baud) {
-		this(
-			portName,
-			Baud.fromInt(baud),
-			DataBits.DATA_BITS_8,
-			StopBits.STOP_BITS_1,
-			Parity.PARITY_NONE,
-			false,
-			false,
-			0,
-			true
-		);
-	}
-	public SerialPlus(final String portName,
-			final Baud baud, final DataBits byteSize,
-			final StopBits stopBits, final Parity parity,
-			final boolean setRTS, final Boolean setDTR,
-			final int flags, final boolean blocking) {
-		this(
-			portName,
-			( baud     == null ? Baud.DEFAULT_BAUD.value          : baud.value     ),
-			( byteSize == null ? DataBits.DEFAULT_BYTE_SIZE.value : byteSize.value ),
-			( stopBits == null ? StopBits.DEFAULT_STOP_BITS.value : stopBits.value ),
-			( parity   == null ? Parity.DEFAULT_PARITY.value      : parity.value   ),
-			setRTS,
-			setDTR,
-			flags,
-			blocking
-		);
-	}
-	public SerialPlus(final String portName,
-			final int baud, final int byteSize,
-			final int stopBits, final int parity,
-			final boolean setRTS, final Boolean setDTR,
-			final int flags, final boolean blocking) {
-		this.portName = portName;
-		this.baud     = baud;
-		this.byteSize = byteSize;
-		this.stopBits = stopBits;
-		this.parity   = parity;
-		this.setRTS   = setRTS;
-		this.setDTR   = setDTR;
-		this.flags    = flags;
-		this.blocking = blocking;
-		this.nat = new NativeSerial(portName);
+	public SerialPlus(final DeviceConfig cfg) {
+		this.cfg = cfg;
 	}
 
 
 
 	public String getPortName() {
-		return this.portName;
-	}
-	public NativeSerial getNative() {
-		return this.nat;
+		return this.cfg.getPortName();
 	}
 	public long getHandle() {
-		return this.nat.getHandle();
+		final Driver driver = this.getDriver();
+		return (
+			driver == null
+			? -1
+			: driver.getHandle()
+		);
+	}
+
+
+
+	public Driver getDriver() {
+		return this.driver.get();
+	}
+	public NativeDevice getNative() {
+		final Driver driver = this.getDriver();
+		return (
+			driver == null
+			? null
+			: driver.getNative()
+		);
+	}
+
+
+
+	// error mode
+	public ErrorMode getErrorMode() {
+		final ErrorMode mode = this.errorMode;
+		return (
+			mode == null
+			? DEFAULT_ERROR_MODE
+			: mode
+		);
+	}
+	public SerialPlus setErrorMode(final ErrorMode mode) {
+		this.errorMode = mode;
+		return this;
 	}
 
 
@@ -100,29 +82,33 @@ public class SerialPlus implements xCloseable {
 
 
 
+	// load driver and open port
+	@SuppressWarnings("resource")
 	public boolean open() {
-		if (!this.nat.openPort()) {
+		final ErrorMode errorMode = this.getErrorMode();
+		if (this.driver.get() != null) {
+			if (ErrorMode.EXCEPTION.equals(errorMode)) {
+				throw new RuntimeException("Port is already open!");
+			} else
+			if (ErrorMode.LOG.equals(errorMode)) {
+				this.log().warning("Port is already open!");
+			}
 			return false;
 		}
-		if (!this.nat.setParams(
-			this.baud,
-			this.byteSize,
-			this.stopBits,
-			this.parity,
-			this.flags
-			)) {
-				return false;
+		final Driver driver;
+		try {
+			driver = new DriverSerial(this.cfg);
+		} catch (IOException e) {
+			if (ErrorMode.EXCEPTION.equals(errorMode)) {
+				throw new IORuntimeException(e);
+			} else
+			if (ErrorMode.LOG.equals(errorMode)) {
+				this.log().trace(e);
+			}
+			return false;
 		}
-		if (!this.nat.setLineStatus(
-			this.setRTS,
-			this.setDTR
-			)) {
-				return false;
-		}
-		if (!this.nat.setBlocking(
-			this.blocking
-			)) {
-				return false;
+		if (!this.driver.compareAndSet(null, driver)) {
+			throw new RuntimeException("Port is already open!");
 		}
 		return true;
 	}
@@ -131,14 +117,25 @@ public class SerialPlus implements xCloseable {
 
 	@Override
 	public void close() throws IOException {
-		this.nat.closePort();
+		final Driver driver = this.getDriver();
+		if (driver != null) {
+			driver.close();
+		}
 	}
 	public boolean isFailed() {
-		return (this.getHandle() < 0L);
+		final Driver driver = this.getDriver();
+		if (driver != null) {
+			return driver.isFailed();
+		}
+		return false;
 	}
 	@Override
 	public boolean isClosed() {
-		return (this.getHandle() <= 0L);
+		final Driver driver = this.getDriver();
+		if (driver != null) {
+			return driver.isClosed();
+		}
+		return true;
 	}
 
 
@@ -195,17 +192,19 @@ public class SerialPlus implements xCloseable {
 
 	public byte[] readBytes(final int length)
 			throws SerialReadTimeoutException, InterruptedException {
-		return this.nat.readBytes(length);
+return null;
+//		return this.driver.readBytes(length);
 	}
 	public String readString(final int length)
 			throws SerialReadTimeoutException, InterruptedException {
-		final byte[] bytes =
-			this.readBytes(length);
-		return (
-			bytes == null
-			? null
-			: new String(bytes)
-		);
+return null;
+//		final byte[] bytes =
+//			this.readBytes(length);
+//		return (
+//			bytes == null
+//			? null
+//			: new String(bytes)
+//		);
 	}
 
 
@@ -387,50 +386,73 @@ public class SerialPlus implements xCloseable {
 
 
 	public boolean writeByte(final byte b) {
-		return
-			this.nat.writeBytes(
-				new byte[] {b}
-			);
+return false;
+//		return
+//			this.driver.writeBytes(
+//				new byte[] {b}
+//			);
 	}
 	public boolean writeBytes(final byte[] bytes) {
-		return this.nat.writeBytes(bytes);
+return false;
+//		return this.driver.writeBytes(bytes);
 	}
 
 
 
 	public boolean writeString(final String str) {
-		return
-			this.writeBytes(
-				str.getBytes()
-			);
+return false;
+//		return
+//			this.writeBytes(
+//				str.getBytes()
+//			);
 	}
 	public boolean writeString(final String str, final String charset)
 			throws UnsupportedEncodingException {
-		return
-			this.writeBytes(
-				str.getBytes(charset)
-			);
+return false;
+//		return
+//			this.writeBytes(
+//				str.getBytes(charset)
+//			);
 	}
 
 
 
 	public boolean writeInt(final int value) {
-		final byte b = (byte) value;
-		return
-			this.writeBytes(
-				new byte[] {b}
-			);
+return false;
+//		final byte b = (byte) value;
+//		return
+//			this.writeBytes(
+//				new byte[] {b}
+//			);
 	}
 	public boolean writeIntArray(final int[] values) {
-		final int size = values.length;
-		byte[] b = new byte[size];
-		for (int i=0; i<size; i++) {
-			b[i] = (byte) values[i];
+return false;
+//		final int size = values.length;
+//		byte[] b = new byte[size];
+//		for (int i=0; i<size; i++) {
+//			b[i] = (byte) values[i];
+//		}
+//		return
+//			this.writeBytes(
+//				b
+//			);
+	}
+
+
+
+	// logger
+	private volatile SoftReference<xLog> _log = null;
+	public xLog log() {
+		if (this._log != null) {
+			final xLog log = this._log.get();
+			if (log != null)
+				return log;
 		}
-		return
-			this.writeBytes(
-				b
-			);
+		final xLog log =
+			xLog.getRoot()
+				.get("LibLoader");
+		this._log = new SoftReference<xLog>(log);
+		return log;
 	}
 
 

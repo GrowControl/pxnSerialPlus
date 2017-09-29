@@ -40,6 +40,15 @@
 
 
 
+// natScanDevices()
+JNIEXPORT jint JNICALL
+Java_com_poixson_serialplus_natives_NativeSerial_natScanDevices
+(JNIEnv *env, jobject obj) {
+	return 0;
+}
+
+
+
 // natOpenPort(port-name)
 JNIEXPORT jlong JNICALL
 Java_com_poixson_serialplus_natives_NativeSerial_natOpenPort

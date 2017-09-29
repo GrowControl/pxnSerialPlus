@@ -21,6 +21,13 @@ static char* product_ids[] = {
 
 
 
+// natScanDevices()
+JNIEXPORT jint JNICALL
+Java_com_poixson_serialplus_natives_NativeD2xx_natScanDevices
+(JNIEnv *env, jobject obj) {
+fprintf(stderr, "SCANNING D2XX..\n");
+return 0;
+}
 
 
 

@@ -29,11 +29,18 @@ public enum Parity {
 
 
 
+	public static Parity FromInt(final int value) {
+		for (final Parity p : Parity.values()) {
+			if (p.value == value)
+				return p;
+		}
+		return null;
+	}
 	public static Parity FromString(final String str) {
-		if (Utils.isEmpty(value)) {
+		if (Utils.isEmpty(str)) {
 			return null;
 		}
-		switch (value.toLowerCase()) {
+		switch (str.toLowerCase()) {
 		case "none":
 		case "n":
 			return PARITY_NONE;

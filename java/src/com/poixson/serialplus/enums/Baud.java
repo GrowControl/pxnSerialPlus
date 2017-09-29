@@ -3,6 +3,8 @@ package com.poixson.serialplus.enums;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.poixson.utils.NumberUtils;
+
 
 public enum Baud {
 
@@ -101,6 +103,14 @@ public enum Baud {
 			}
 		}
 		return null;
+	}
+	public static Baud FromString(final String str) {
+		final Integer val = NumberUtils.toInteger(str);
+		return (
+			val == null
+			? null
+			: FromInt(val.intValue())
+		);
 	}
 
 

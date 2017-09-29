@@ -3,6 +3,8 @@ package com.poixson.serialplus.enums;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.poixson.utils.NumberUtils;
+
 
 public enum DataBits {
 
@@ -49,6 +51,14 @@ public enum DataBits {
 			}
 		}
 		return null;
+	}
+	public static DataBits FromString(final String str) {
+		final Integer val = NumberUtils.toInteger(str);
+		return (
+			val == null
+			? null
+			: FromInt(val.intValue())
+		);
 	}
 
 

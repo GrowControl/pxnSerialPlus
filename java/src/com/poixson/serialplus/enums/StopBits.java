@@ -26,22 +26,6 @@ public enum StopBits {
 
 
 
-	public static StopBits FromString(final String str) {
-		if (Utils.isEmpty(value)) {
-			return null;
-		}
-		switch (value.toLowerCase()) {
-		case "1":
-			return STOP_BITS_1;
-		case "1.5":
-		case "1_5":
-		case "15":
-			return STOP_BITS_1_5;
-		case "2":
-			return STOP_BITS_2;
-		}
-		return null;
-	}
 	public static StopBits FromInt(final int value) {
 		if (value <= 0) {
 			return null;
@@ -52,6 +36,22 @@ public enum StopBits {
 		case 15:
 			return STOP_BITS_1_5;
 		case 2:
+			return STOP_BITS_2;
+		}
+		return null;
+	}
+	public static StopBits FromString(final String str) {
+		if (Utils.isEmpty(str)) {
+			return null;
+		}
+		switch (str.toLowerCase()) {
+		case "1":
+			return STOP_BITS_1;
+		case "1.5":
+		case "1_5":
+		case "15":
+			return STOP_BITS_1_5;
+		case "2":
 			return STOP_BITS_2;
 		}
 		return null;

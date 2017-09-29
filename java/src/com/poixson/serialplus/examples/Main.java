@@ -1,6 +1,8 @@
 package com.poixson.serialplus.examples;
 
-import com.poixson.utils.NativeUtils;
+import com.poixson.utils.NativeLoader;
+import com.poixson.utils.StringUtils;
+import com.poixson.utils.Utils;
 import com.poixson.utils.xVars;
 
 
@@ -11,111 +13,129 @@ public class Main {
 	public static void main(final String[] args) {
 		xVars.debug(true);
 
-		final String libFileName = "serialplus-linux64.so";
-		final boolean result =
-			NativeUtils.LoadExtractLibrary(
-				libFileName,
-				example.class
-			);
-		if (!result) {
-			System.out.println("Failed to load library!");
+		if (args.length == 0) {
+			PrintHelp();
 			System.exit(1);
 		}
+		System.out.println();
+		LoadLibraries();
+		System.out.println();
 
-		// load the serial object
-		final SerialPlus serial =
-			(new SerialPlusFactory())
-			.setPortName("/dev/ttyUSB0")
-			.setBaud(9600)
-				.build();
+		for (int index=0; index<args.length; index++) {
+			final String str =
+				StringUtils.TrimFront(
+					args[index],
+					" ", "-", "\r", "\n"
+				);
+			if (Utils.isEmpty(str)) continue;
+			switch (str) {
 
-		// open the port
-		if (serial.open()) {
-			final long handle = serial.getHandle();
-			System.out.print("Handle: ");
-			System.out.println(handle);
-		} else {
-			System.out.println("Open failed!");
-		}
-
-		//final NativeSerial nat = serial.getNative();
-		//nat.natSetVMinVTime(
-		//	serial.getHandle(),
-		//	10, // vMin
-		//	300 // vTime
-		//);
-
-		while (true) {
-			try {
-				final String data = serial.readString(10);
-				System.out.print(data);
-			} catch (SerialReadTimeoutException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			// all examples
+			case "all": {
+				Utils.SleepDot("Running all tests");
+				// list devices
+				{
+					System.out.println();
+					final ExampleListDevices example = new ExampleListDevices();
+					example.run();
+				}
+				// echo example
+				{
+					System.out.println();
+					final ExampleEcho example = new ExampleEcho();
+					example.run();
+				}
+				break;
 			}
-			System.out.println();
-			System.out.print(" > ");
+
+			// list devices example
+			case "list": {
+				Utils.SleepDot("Running list test");
+				final ExampleListDevices example = new ExampleListDevices();
+				example.run();
+				break;
+			}
+
+			// echo example
+			case "echo": {
+				Utils.SleepDot("Running echo test");
+				final ExampleEcho example = new ExampleEcho();
+				if (args.length > index+1) {
+					final String portName = args[++index];
+					example.setPortName(portName);
+					if (args.length > index+1) {
+						final String baudStr = args[++index];
+						example.setBaud(baudStr);
+						System.out.println(
+							(new StringBuilder())
+								.append("Using port: ")
+								.append(portName)
+								.append(" baud: ")
+								.append(baudStr)
+								.toString()
+						);
+					} else {
+						System.out.println("Using port: "+portName);
+					}
+				}
+				example.run();
+				break;
+			}
+
+			case "help":
+				PrintHelp();
+				System.exit(1);
+
+			default:
+				System.out.println("Unknown argument: "+args[index]);
+				PrintHelp();
+				System.exit(1);
+			}
 		}
 
+		System.exit(0);
+	}
 
 
-//final long handle = serial.getHandle();
-//final NativeSerial nat = serial.getNative();
-//final int avail = nat.natGetInputBytesCount(handle);
-//System.out.print("available: ");
-//System.out.println(avail);
-//byte[] bytes = new byte[avail];
-//nat.natReadBytes(
-//	handle,
-//	bytes,
-//	avail
-//);
-//System.out.print("GOT DATA: ");
-//System.out.println(new String(bytes));
 
-//		serial.writeString("AbC");
+	private static void LoadLibraries() {
+		final NativeLoader loader =
+			NativeLoader.get()
+				.setClassRef(Main.class)
+				.setResourcesPath("lib/linux64/")
+				.setLibrariesPath("lib/")
+				.enableExtract()
+				.enableReplace();
+		// load libftd2xx.so
+		{
+			final boolean result =
+				loader.LoadLibrary("libftd2xx.so");
+			if (!result) {
+				System.out.println("Failed to load ftd2xx library!");
+				return;
+			}
+		}
+		// load serialplus.so
+		{
+			final boolean result =
+				loader.LoadLibrary("serialplus-linux64.so");
+			if (!result) {
+				System.out.println("Failed to load serialplus library!");
+				return;
+			}
+		}
+	}
 
-//		System.out.println("Sleeping 1 second..");
-//		ThreadUtils.Sleep("0.5s");
 
-//	final Thread thread = new Thread() {
-//	private volatile Thread otherThread = null;
-//	public Thread init(final Thread otherThread) {
-//		this.otherThread = otherThread;
-//		return this;
-//	}
-//	public void run() {
-//		ThreadUtils.Sleep("2s");
-//		System.out.println("Interrupting!!!");
-//		this.otherThread.interrupt();
-//	}
-//}.init(Thread.currentThread());
-//thread.setDaemon(true);
-//thread.start();
 
-//System.out.println();
-//System.out.println();
-//System.out.println();
-
-//		try {
-//			serial.setReadTimeout("5s");
-//			final String s = serial.readString(1);
-//			System.out.println(s);
-//		} catch (SerialReadTimeoutException e) {
-//			e.printStackTrace();
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-
-//		final String str = serial.readString();
-//		System.out.print("Got data: ");
-//		System.out.println(str);
-
-//		ThreadUtils.Sleep("0.5s");
-//		System.out.println("Closing port");
-//		Utils.safeClose(serial);
-
+	public static void PrintHelp() {
+		System.out.println();
+		System.out.println(" Available Examples:");
+		System.out.println("   list     List available devices.");
+		System.out.println("   echo [port [baud]]");
+		System.out.println("            Open a port and echo the recieved data.");
+		System.out.println("   all      Run all examples.");
+		System.out.println();
 	}
 
 

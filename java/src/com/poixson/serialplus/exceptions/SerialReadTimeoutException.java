@@ -1,6 +1,7 @@
-package com.poixson.serialplus;
+package com.poixson.serialplus.exceptions;
 
 import com.poixson.utils.StringUtils;
+
 
 public class SerialReadTimeoutException extends Exception {
 	private static final long serialVersionUID = 1L;

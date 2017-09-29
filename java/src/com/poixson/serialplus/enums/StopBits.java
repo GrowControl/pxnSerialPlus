@@ -26,7 +26,7 @@ public enum StopBits {
 
 
 
-	public static StopBits fromString(final String value) {
+	public static StopBits FromString(final String str) {
 		if (Utils.isEmpty(value)) {
 			return null;
 		}
@@ -42,7 +42,7 @@ public enum StopBits {
 		}
 		return null;
 	}
-	public static StopBits fromInt(final int value) {
+	public static StopBits FromInt(final int value) {
 		if (value <= 0) {
 			return null;
 		}

@@ -91,7 +91,7 @@ public enum Baud {
 
 
 
-	public static Baud fromInt(final int value) {
+	public static Baud FromInt(final int value) {
 		if (value <= 0) {
 			return null;
 		}

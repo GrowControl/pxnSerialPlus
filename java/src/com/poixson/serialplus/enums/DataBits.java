@@ -39,7 +39,7 @@ public enum DataBits {
 
 
 
-	public static DataBits fromInt(final int value) {
+	public static DataBits FromInt(final int value) {
 		if (value <= 0) {
 			return null;
 		}

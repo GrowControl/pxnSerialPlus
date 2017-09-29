@@ -29,7 +29,7 @@ public enum Parity {
 
 
 
-	public static Parity fromString(final String value) {
+	public static Parity FromString(final String str) {
 		if (Utils.isEmpty(value)) {
 			return null;
 		}

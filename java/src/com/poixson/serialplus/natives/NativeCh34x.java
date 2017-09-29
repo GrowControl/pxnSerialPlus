@@ -3,14 +3,13 @@ package com.poixson.serialplus.natives;
 import com.poixson.serialplus.NativeDevice;
 
 
-public class NativeSerial implements NativeDevice {
+public class NativeCh34x implements NativeDevice {
 
 
 
-	public NativeSerial() {
+	public NativeCh34x() {
 //TODO:
 		// check library version
-//		throw new MismatchedLibraryVersion();
 	}
 
 

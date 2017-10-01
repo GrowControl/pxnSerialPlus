@@ -150,6 +150,15 @@ public class SerialPlusFactory {
 		if (bits == null) throw new InvalidParameterException("Invalid stop bits: "+value);
 		return this.setStopBits(bits);
 	}
+	public SerialPlusFactory setStopBits(final double value)
+			throws SerialInvalidParameterException {
+		if (value == -1.0) {
+			return this.setStopBits( (StopBits)null );
+		}
+		final StopBits bits = StopBits.FromDouble(value);
+		if (bits == null) throw new SerialInvalidParameterException("stop bits", value);
+		return this.setStopBits(bits);
+	}
 	public SerialPlusFactory setStopBits(final int value) {
 		final StopBits bits = StopBits.FromInt(value);
 		if (bits == null) throw new InvalidParameterException("Invalid stop bits: "+Integer.toString(value));

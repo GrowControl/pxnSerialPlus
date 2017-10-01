@@ -2,6 +2,7 @@ package com.poixson.serialplus.enums;
 
 import com.poixson.utils.Utils;
 
+
 public enum StopBits {
 
 	STOP_BITS_1  (1),
@@ -38,6 +39,18 @@ public enum StopBits {
 		case 2:
 			return STOP_BITS_2;
 		}
+		return null;
+	}
+	public static StopBits FromDouble(final double value) {
+		if (value <= 0) {
+			return null;
+		}
+		if (value == 1.0)
+			return STOP_BITS_1;
+		if (value == 1.5)
+			return STOP_BITS_1_5;
+		if (value == 2.0)
+			return STOP_BITS_2;
 		return null;
 	}
 	public static StopBits FromString(final String str) {

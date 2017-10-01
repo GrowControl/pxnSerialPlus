@@ -1,11 +1,10 @@
 package com.poixson.serialplus;
 
-import java.security.InvalidParameterException;
-
 import com.poixson.serialplus.enums.Baud;
 import com.poixson.serialplus.enums.DataBits;
 import com.poixson.serialplus.enums.Parity;
 import com.poixson.serialplus.enums.StopBits;
+import com.poixson.serialplus.exceptions.SerialInvalidParameterException;
 import com.poixson.utils.ErrorMode;
 import com.poixson.utils.Utils;
 import com.poixson.utils.xTime;
@@ -69,23 +68,26 @@ public class SerialPlusFactory {
 
 
 
-	public SerialPlus build() {
-		final String portName = this.portName;
-		if (Utils.isBlank(portName)) throw new InvalidParameterException("portName is required");
-		final DeviceConfig cfg =
-			new DeviceConfig(
-				portName,
-				this.baud,
-				this.byteSize,
-				this.stopBits,
-				this.parity,
-				this.rts,
-				this.dtr,
-				this.flags,
-				this.readTimeout,
-				this.readInterval
-			);
+	public SerialPlus build() throws SerialInvalidParameterException {
+		final DeviceConfig cfg = this.getConfig();
 		return new SerialPlus(cfg);
+	}
+	public DeviceConfig getConfig() throws SerialInvalidParameterException {
+		final String portName = this.getPortName();
+		if (Utils.isBlank(portName))
+			throw new SerialInvalidParameterException("portName is required");
+		return new DeviceConfig(
+			portName,
+			this.getBaud(),
+			this.getByteSize(),
+			this.getStopBits(),
+			this.getParity(),
+			this.getRTS(),
+			this.getDTR(),
+			this.getFlagsInt(),
+			readTimeout,
+			readInterval
+		);
 	}
 
 

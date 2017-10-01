@@ -94,12 +94,7 @@ public class SerialPlusFactory {
 
 	// error mode
 	public ErrorMode getErrorMode() {
-		final ErrorMode mode = this.errorMode;
-		return (
-			mode == null
-			? DEFAULT_ERROR_MODE
-			: mode
-		);
+		return this.errorMode;
 	}
 	public SerialPlusFactory setErrorMode(final ErrorMode mode) {
 		this.errorMode = mode;
@@ -109,6 +104,9 @@ public class SerialPlusFactory {
 
 
 	// port name
+	public String getPortName() {
+		return this.portName;
+	}
 	public SerialPlusFactory setPortName(final String portName) {
 		this.portName = portName;
 		return this;
@@ -117,39 +115,76 @@ public class SerialPlusFactory {
 
 
 	// baud
+	public Baud getBaud() {
+		return baud;
+	}
+	public int getBaudInt() {
+		final Baud baud = this.getBaud();
+		return (
+			baud == null
+			? -1
+			: baud.value
+		);
+	}
 	public SerialPlusFactory setBaud(final Baud baud) {
 		this.baud = baud;
 		return this;
 	}
-	public SerialPlusFactory setBaud(final int value) {
+	public SerialPlusFactory setBaud(final int value)
+			throws SerialInvalidParameterException {
+		if (value == -1) {
+			return this.setBaud(null);
+		}
 		final Baud baud = Baud.FromInt(value);
-		if (baud == null) throw new InvalidParameterException("Invalid baud: "+Integer.toString(value));
+		if (baud == null) throw new SerialInvalidParameterException("baud", value);
 		return this.setBaud(baud);
 	}
 
 
 
 	// bit size
+	public DataBits getByteSize() {
+		return this.byteSize;
+	}
+	public int getDataBitsInt() {
+		final DataBits bits = this.getByteSize();
+		return (
+			bits == null
+			? -1
+			: bits.value
+		);
+	}
 	public SerialPlusFactory setByteSize(final DataBits bits) {
 		this.byteSize = bits;
 		return this;
 	}
-	public SerialPlusFactory setByteSize(final int value) {
+	public SerialPlusFactory setByteSize(final int value)
+			throws SerialInvalidParameterException {
+		if (value == -1) {
+			return this.setByteSize(null);
+		}
 		final DataBits bits = DataBits.FromInt(value);
-		if (bits == null) throw new InvalidParameterException("Invalid bit size: "+Integer.toString(value));
+		if (bits == null) throw new SerialInvalidParameterException("bit size", value);
 		return this.setByteSize(bits);
 	}
 
 
 
 	// stop bits
+	public StopBits getStopBits() {
+		return this.stopBits;
+	}
 	public SerialPlusFactory setStopBits(final StopBits bits) {
 		this.stopBits = bits;
 		return this;
 	}
-	public SerialPlusFactory setStopBits(final String value) {
-		final StopBits bits = StopBits.FromString(value);
-		if (bits == null) throw new InvalidParameterException("Invalid stop bits: "+value);
+	public SerialPlusFactory setStopBits(final int value)
+			throws SerialInvalidParameterException {
+		if (value == -1) {
+			return this.setStopBits( (StopBits)null );
+		}
+		final StopBits bits = StopBits.FromInt(value);
+		if (bits == null) throw new SerialInvalidParameterException("stop bits", value);
 		return this.setStopBits(bits);
 	}
 	public SerialPlusFactory setStopBits(final double value)
@@ -161,28 +196,63 @@ public class SerialPlusFactory {
 		if (bits == null) throw new SerialInvalidParameterException("stop bits", value);
 		return this.setStopBits(bits);
 	}
-	public SerialPlusFactory setStopBits(final int value) {
-		final StopBits bits = StopBits.FromInt(value);
-		if (bits == null) throw new InvalidParameterException("Invalid stop bits: "+Integer.toString(value));
+	public SerialPlusFactory setStopBits(final String value)
+			throws SerialInvalidParameterException {
+		if (Utils.isEmpty(value)) {
+			return this.setStopBits( (StopBits)null );
+		}
+		final StopBits bits = StopBits.FromString(value);
+		if (bits == null) throw new SerialInvalidParameterException("stop bits", value);
 		return this.setStopBits(bits);
 	}
 
 
 
 	// parity
+	public Parity getParity() {
+		return this.parity;
+	}
+	public int getParityInt() {
+		final Parity parity = this.getParity();
+		return (
+			parity == null
+			? -1
+			: parity.value
+		);
+	}
 	public SerialPlusFactory setParity(final Parity parity) {
 		this.parity = parity;
 		return this;
 	}
-	public SerialPlusFactory setParity(final String value) {
+	public SerialPlusFactory setParity(final String value)
+			throws SerialInvalidParameterException {
+		if (Utils.isEmpty(value)) {
+			return this.setParity( (Parity)null );
+		}
 		final Parity parity = Parity.FromString(value);
-		if (parity == null) throw new InvalidParameterException("Invalid parity: "+value);
+		if (parity == null) throw new SerialInvalidParameterException("parity", value);
 		return this.setParity(parity);
 	}
 
 
 
 	// line status
+	public boolean getDTR() {
+		final Boolean value = this.dtr;
+		return (
+			value == null
+			? null
+			: value.booleanValue()
+		);
+	}
+	public boolean getRTS() {
+		final Boolean value = this.rts;
+		return (
+			value == null
+			? null
+			: value.booleanValue()
+		);
+	}
 	public SerialPlusFactory setRTS(final boolean value) {
 		this.rts = Boolean.valueOf(value);
 		return this;
@@ -195,6 +265,9 @@ public class SerialPlusFactory {
 
 
 	// flags
+	public int getFlagsInt() {
+		return this.flags;
+	}
 	public SerialPlusFactory setFlags(final int flags) {
 		this.flags = Integer.valueOf(flags);
 		return this;

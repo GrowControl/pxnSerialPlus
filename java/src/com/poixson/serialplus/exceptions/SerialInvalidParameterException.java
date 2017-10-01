@@ -1,9 +1,11 @@
 package com.poixson.serialplus.exceptions;
 
+import java.security.InvalidParameterException;
+
 import com.poixson.utils.StringUtils;
 
 
-public class SerialInvalidParameterException extends RuntimeException {
+public class SerialInvalidParameterException extends InvalidParameterException {
 	private static final long serialVersionUID = 1L;
 
 

@@ -11,7 +11,8 @@ public enum DataBits {
 	DATA_BITS_5 (5),
 	DATA_BITS_6 (6),
 	DATA_BITS_7 (7),
-	DATA_BITS_8 (8);
+	DATA_BITS_8 (8),
+	DATA_BITS_9 (9);
 
 
 
@@ -25,6 +26,7 @@ public enum DataBits {
 		bits.add(DATA_BITS_6);
 		bits.add(DATA_BITS_7);
 		bits.add(DATA_BITS_8);
+		bits.add(DATA_BITS_9);
 	}
 
 

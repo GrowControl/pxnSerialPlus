@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.poixson.serialplus.DeviceConfig;
 import com.poixson.serialplus.Driver;
-import com.poixson.serialplus.drivers.DriverCh34x;
 import com.poixson.serialplus.drivers.DriverD2xx;
 import com.poixson.serialplus.drivers.DriverSerial;
 import com.poixson.utils.Utils;
@@ -16,8 +15,7 @@ public enum DriverMode {
 
 	AUTO   (0),
 	SERIAL (1),
-	D2XX   (2),
-	CH34X  (3);
+	D2XX   (2);
 
 
 
@@ -30,7 +28,6 @@ public enum DriverMode {
 		modes.add(AUTO);
 		modes.add(SERIAL);
 		modes.add(D2XX);
-		modes.add(CH34X);
 	}
 
 
@@ -57,8 +54,6 @@ return null;
 			return new DriverSerial(cfg);
 		case D2XX:
 			return new DriverD2xx(cfg);
-		case CH34X:
-			return new DriverCh34x(cfg);
 		default:
 		}
 		return null;
@@ -76,8 +71,6 @@ return null;
 			return SERIAL;
 		case "d2xx":
 			return D2XX;
-		case "ch34x":
-			return CH34X;
 		default:
 		}
 		return null;

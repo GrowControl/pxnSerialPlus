@@ -67,6 +67,14 @@
 					<include>*.so</include>
 				</includes>
 			</resource>
+			<resource>
+				<directory>../scripts/</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>99-usb-serial.rules</include>
+					<include>usb-serial-vendor-product.sh</include>
+				</includes>
+			</resource>
 <!--
 			<resource>
 				<directory>../libraries/linux64-${ftd2xxLinuxVersion}/release/build/</directory>

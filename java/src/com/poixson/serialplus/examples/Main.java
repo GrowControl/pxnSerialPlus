@@ -36,7 +36,7 @@ public class Main {
 				// list devices
 				{
 					System.out.println();
-					final ExampleListDevices example = new ExampleListDevices();
+					final ExampleList example = new ExampleList();
 					example.run();
 				}
 				// echo example
@@ -51,7 +51,7 @@ public class Main {
 			// list devices example
 			case "list": {
 				Utils.SleepDot("Running list test");
-				final ExampleListDevices example = new ExampleListDevices();
+				final ExampleList example = new ExampleList();
 				example.run();
 				break;
 			}

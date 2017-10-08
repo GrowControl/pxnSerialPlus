@@ -3,7 +3,7 @@ package com.poixson.serialplus.examples;
 import com.poixson.serialplus.natives.NativeD2xx;
 
 
-public class ExampleListDevices implements Runnable {
+public class ExampleList implements Runnable {
 
 
 

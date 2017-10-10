@@ -64,11 +64,6 @@ function CopyLibs() {
 			\cp -afv  "$CWD/$filesPath/$filesFormat"  "$CWD/java/resources/lib/$osName/$renameFile"  || exit 1
 		fi
 	fi
-	# .h files
-	\cp -afv  "$filesPath/../ftd2xx.h"    "$CWD/natives/$osName/"  || exit 1
-	if [ -e "$filesPath/../WinTypes.h" ]; then
-		\cp -afv  "$filesPath/../WinTypes.h"  "$CWD/natives/$osName/"  || exit 1
-	fi
 }
 
 
@@ -96,6 +91,16 @@ CopyLibs  "win64"    "libraries/win64-<version>/amd64"            "*.dll"
 
 # win32
 CopyLibs  "win32"    "libraries/win64-<version>/i386"             "*.dll"
+
+
+
+# .h files
+\cp -avf  "libraries/linux64-1.4.6/release/ftd2xx.h"    "natives/"  || exit 1
+\cp -avf  "libraries/linux64-1.4.6/release/WinTypes.h"  "natives/"  || exit 1
+\pushd natives/ >/dev/null || exit 1
+	\dos2unix ftd2xx.h   || exit 1
+	\dos2unix WinTypes.h || exit 1
+\popd >/dev/null
 
 
 

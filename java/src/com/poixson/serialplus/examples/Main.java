@@ -1,6 +1,6 @@
 package com.poixson.serialplus.examples;
 
-import com.poixson.utils.NativeLoader;
+import com.poixson.utils.NativeAutoLoader;
 import com.poixson.utils.StringUtils;
 import com.poixson.utils.Utils;
 import com.poixson.utils.xVars;
@@ -99,17 +99,18 @@ public class Main {
 
 
 	private static void LoadLibraries() {
-		final NativeLoader loader =
-			NativeLoader.get()
+		final NativeAutoLoader loader =
+			NativeAutoLoader.get()
 				.setClassRef(Main.class)
+				.addDefaultSearchPaths()
 				.setResourcesPath("lib/linux64/")
-				.setLibrariesPath("lib/")
+				.setLocalLibPath("lib/")
 				.enableExtract()
 				.enableReplace();
 		// load libftd2xx.so
 		{
 			final boolean result =
-				loader.LoadLibrary("libftd2xx.so");
+				loader.Load("libftd2xx.so");
 			if (!result) {
 				System.out.println("Failed to load ftd2xx library!");
 				return;
@@ -118,7 +119,7 @@ public class Main {
 		// load serialplus.so
 		{
 			final boolean result =
-				loader.LoadLibrary("serialplus-linux64.so");
+				loader.Load("serialplus-linux64.so");
 			if (!result) {
 				System.out.println("Failed to load serialplus library!");
 				return;

@@ -1,4 +1,9 @@
 .git/
+_/
+java/resources/lib/
+java/resources/lib-versions/
+java/maven-eclipse.xml
+java/.externalToolBuilders/
 
 debug
 DEBUG

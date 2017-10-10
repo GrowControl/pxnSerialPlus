@@ -7,8 +7,12 @@
 
 #include <jni.h>
 
+#include "ftd2xx.h"
 
-//#include "ftd2xx.h"
+#ifdef __unix__
+	#include "WinTypes.h"
+#endif
+
 
 
 static char* vendor_ids[] = {
